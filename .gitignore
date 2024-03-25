@@ -1,0 +1,7 @@
+## -----------------------------------------------------------------------------
+## Ignore the build artifacts that tcc generates on this folder...
+tc/bin/*.exe
+tc/bin/*.EXE
+
+tc/bin/*.obj
+tc/bin/*.OBJ
