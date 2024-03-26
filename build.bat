@@ -3,9 +3,12 @@ cd djgpp
 call setenv.bat
 
 @REM Navigate to the source folder.
+
 cd ..
 cd src
 cd imgview
+call build.bat
 
-@REM Call the correct build script.
+cd ..
+cd palview
 call build.bat
