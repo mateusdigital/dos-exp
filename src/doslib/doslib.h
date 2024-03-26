@@ -39,6 +39,7 @@ typedef u8 bool;
 // -----------------------------------------------------------------------------
 u32 GetFileSize(FILE *fp);
 
+
 //
 // IMG
 //
@@ -55,6 +56,30 @@ bool LoadImg(FILE *fp, IMG *img);
 
 
 //
+// PAL
+//
+
+// -----------------------------------------------------------------------------
+typedef struct tagRGB {
+    u8 r, g, b;
+} RGB;
+
+typedef struct tagPAL {
+    u16 count;
+    RGB *colors;
+} PAL;
+
+// -----------------------------------------------------------------------------
+bool LoadPal(FILE *fp, PAL *pal);
+
+// -----------------------------------------------------------------------------
+void SetPaletteColor(u8 index, u8 red, u8 green, u8 blue);
+
+// -----------------------------------------------------------------------------
+void SetPaletteWithPal(PAL *pal);
+
+
+//
 // Graphics
 //
 
@@ -68,6 +93,8 @@ void SetTextMode();
 
 // -----------------------------------------------------------------------------
 extern char VIRTUAL_SCREEN[SCREEN_HEIGHT * SCREEN_WIDTH];
+#define VirtualScreenXY(x, y) VIRTUAL_SCREEN[(y) * SCREEN_WIDTH + (x)]
+
 #define BlitVirtualScreen() dosmemput(VIRTUAL_SCREEN, sizeof(VIRTUAL_SCREEN), 0xA0000)
 
 

@@ -41,6 +41,42 @@ bool LoadImg(FILE *fp, IMG *img)
 }
 
 
+//
+// PAL
+//
+
+// -----------------------------------------------------------------------------
+bool LoadPal(FILE *fp, PAL *pal)
+{
+    fread(&pal->count,  sizeof(u16), 1, fp);
+
+    //
+    pal->colors = malloc(sizeof(RGB) * pal->count);
+    if(!pal->colors) {
+        return false;
+    }
+
+    fread(pal->colors, sizeof(RGB), pal->count, fp);
+    return true;
+}
+
+// -----------------------------------------------------------------------------
+void SetPaletteColor(u8 index, u8 red, u8 green, u8 blue)
+{
+    outportb(0x3C8, index); // Set the color index register
+    outportb(0x3C9, red  );
+    outportb(0x3C9, green);
+    outportb(0x3C9, blue );
+}
+
+// -----------------------------------------------------------------------------
+void SetPaletteWithPal(PAL *pal)
+{
+    for(u16 i = 0; i < pal->count; ++i) {
+        RGB *rgb = &pal->colors[i];
+        SetPaletteColor(i, rgb->r, rgb->g, rgb->b);
+    }
+}
 
 //
 // Graphics
