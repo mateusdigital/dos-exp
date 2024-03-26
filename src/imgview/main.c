@@ -37,7 +37,7 @@
 void help()
 {
     printf("Usage:\n");
-    printf("   %s <input-file>\n", PROGRAM_NAME);
+    printf("   %s <input-file> <input-pal>\n", PROGRAM_NAME);
 }
 
 // -----------------------------------------------------------------------------
@@ -49,19 +49,12 @@ void version()
     printf("Check %s for more :)\n", PROGRAM_WEBSITE);
 }
 
-void setPalette(int index, int red, int green, int blue) {
-    outportb(0x3C8, index);         // Set the color index register
-    outportb(0x3C9, red & 0xFF);    // Set the red component
-    outportb(0x3C9, green & 0xFF);  // Set the green component
-    outportb(0x3C9, blue & 0xFF);   // Set the blue component
-}
-
 
 // -----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
-    //
-    if(argc != 2) {
+    // Command line.
+    if(argc < 2) {
         help();
         exit(1);
     }
@@ -70,28 +63,54 @@ int main(int argc, char *argv[])
         exit(0);
     }
 
-    //
-    char *filename = argv[1];
-    FILE *file = fopen(filename, "rb");
-    if(!file) {
-        printf("Failed to open file: %s\n", filename);
+    // Load the Img.
+    char *img_filename = argv[1];
+    FILE *img_file = fopen(img_filename, "rb");
+    if(!img_file) {
+        printf("Failed to open img file: %s\n", img_filename);
         exit(1);
     }
 
     IMG img;
-    if(!LoadImg(file, &img)) {
-        printf("Failed to load img");
+    if(!LoadImg(img_file, &img)) {
+        printf("Failed to load img\n");
         exit(1);
     }
 
-    //
+    fclose(img_file);
+
+    // Load the Pal
+    PAL pal;
+    bool pal_loaded = false;
+
+    if(argc >= 3) {
+        char *pal_filename = argv[2];
+        FILE *pal_file = fopen(pal_filename, "rb");
+
+        if(!pal_file) {
+            printf("Failed to open pal file: %s\n", pal_filename);
+            exit(1);
+        }
+
+        if(!LoadPal(pal_file, &pal)) {
+            printf("Failed to load pal\n");
+            exit(1);
+        }
+
+        fclose(pal_file);
+        pal_loaded = true;
+    }
+
+    // Visualize the Img.
     SetVGA256();
-    setPalette(0x0a, 255, 255, 255);
-    setPalette(0x08, 255, 0, 255);
-    
+
+    if(pal_loaded) {
+        SetPaletteWithPal(&pal);
+    }
+
     for (u16 y = 0; y < img.height; ++y) {
         for (u16 x = 0; x < img.width; ++x) {
-            VIRTUAL_SCREEN[y * SCREEN_WIDTH + x] = img.data[y * img.width + x];
+            VIRTUAL_SCREEN[y * SCREEN_WIDTH + x + 100] = img.data[y * img.width + x];
         }
     }
 
